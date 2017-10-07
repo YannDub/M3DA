@@ -8,10 +8,14 @@ public class Main : MonoBehaviour {
 	public Camera perspCam;
 	public GameObject section;
 	public GameObject path;
+	public GameObject extrusion;
 
 	// Use this for initialization
 	void Start () {
-		
+		orthoCam.enabled = true;
+		perspCam.enabled = false;
+		section.GetComponent<LineRenderer> ().enabled = true;
+		path.GetComponent<LineRenderer> ().enabled = false;
 	}
 	
 	// Update is called once per frame
@@ -22,10 +26,10 @@ public class Main : MonoBehaviour {
 			section.GetComponent<LineRenderer> ().enabled = true;
 			path.GetComponent<LineRenderer> ().enabled = false;
 		} if (Input.GetKeyDown (KeyCode.F2)) {
-			orthoCam.enabled = false;
-			perspCam.enabled = true;
+			orthoCam.enabled = true;
+			perspCam.enabled = false;
 			section.GetComponent<LineRenderer> ().enabled = false;
 			path.GetComponent<LineRenderer> ().enabled = true;
-		}
+		} 
 	}
 }
