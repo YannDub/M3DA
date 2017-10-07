@@ -8,21 +8,26 @@ public class Extrusion : MonoBehaviour {
 	public InteractiveLine path, section;
 
 	private Vector3[] position;
+	private int lastCount;
 
 	// Use this for initialization
 	void Start () {
 		GetComponent<MeshFilter> ().mesh = mesh = new Mesh ();
 		mesh.name = "Extrusion";
+		path.setSegment ();
 		this.ExtrudeLine ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		
+		if (path.getPosition ().Count != lastCount) {
+			mesh.Clear ();
+			if(path.getPosition().Count >= 2) this.ExtrudeLine ();
+		}
+		lastCount = path.getPosition ().Count;
 	}
 
 	void ExtrudeLine() {
-		path.setSegment ();
 		section.setCircle (1);
 		int stacks = path.getPosition ().Count;
 		int slices = section.getPosition ().Count;

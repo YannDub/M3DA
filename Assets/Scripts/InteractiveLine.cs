@@ -10,13 +10,24 @@ public class InteractiveLine : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		LineRenderer line = this.gameObject.AddComponent<LineRenderer> ();
-	//	line.material = new Material(Shader.Find("Particles/Additive"));
 		line.widthMultiplier = 0.2f;
 		line.material.color = color;
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		if (gameObject.name == "Path") {
+			if (Input.GetKeyDown (KeyCode.X)) {
+				position = new List<Vector3> ();
+			}
+
+			if (Input.GetMouseButtonDown (0)) {
+				Vector3 mouse = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+				mouse.z = 0;
+				position.Add (mouse);
+			}
+		}
+
 		LineRenderer line = this.gameObject.GetComponent<LineRenderer> ();
 		line.numPositions = position.Count;
 		line.SetPositions (position.ToArray ());
