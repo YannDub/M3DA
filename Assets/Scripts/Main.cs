@@ -16,6 +16,7 @@ public class Main : MonoBehaviour {
 		perspCam.enabled = false;
 		section.GetComponent<LineRenderer> ().enabled = true;
 		path.GetComponent<LineRenderer> ().enabled = false;
+		extrusion.GetComponent<MeshRenderer> ().enabled = false;
 	}
 	
 	// Update is called once per frame
@@ -25,11 +26,19 @@ public class Main : MonoBehaviour {
 			perspCam.enabled = false;
 			section.GetComponent<LineRenderer> ().enabled = true;
 			path.GetComponent<LineRenderer> ().enabled = false;
+			extrusion.GetComponent<MeshRenderer> ().enabled = false;
 		} if (Input.GetKeyDown (KeyCode.F2)) {
 			orthoCam.enabled = true;
 			perspCam.enabled = false;
 			section.GetComponent<LineRenderer> ().enabled = false;
 			path.GetComponent<LineRenderer> ().enabled = true;
-		} 
+			extrusion.GetComponent<MeshRenderer> ().enabled = false;
+		} if (Input.GetKeyDown (KeyCode.F3)) {
+			orthoCam.enabled = false;
+			perspCam.enabled = true;
+			section.GetComponent<LineRenderer> ().enabled = false;
+			path.GetComponent<LineRenderer> ().enabled = false;
+			extrusion.GetComponent<MeshRenderer> ().enabled = true;
+		}
 	}
 }
