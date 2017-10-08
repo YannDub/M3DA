@@ -8,13 +8,15 @@ public class Extrusion : MonoBehaviour {
 	public InteractiveLine path, section;
 
 	private Vector3[] position;
-	private int lastCount;
+	private int lastCount, lastCountSec;
 
 	// Use this for initialization
 	void Start () {
 		GetComponent<MeshFilter> ().mesh = mesh = new Mesh ();
 		mesh.name = "Extrusion";
-		path.setSegment ();
+		//path.setSegment ();
+		path.setCircle(2);
+		section.setCircle (1);
 		this.ExtrudeLine ();
 	}
 	
@@ -22,13 +24,26 @@ public class Extrusion : MonoBehaviour {
 	void Update () {
 		if (path.getPosition ().Count != lastCount) {
 			mesh.Clear ();
-			if(path.getPosition().Count >= 2) this.ExtrudeLine ();
+			if (path.getPosition ().Count >= 2) {
+				//this.ExtrudeLine ();
+				this.ExtrudeSpline();
+			}
+			Debug.Log ("Test");
+		}
+
+		if (section.getPosition ().Count != lastCountSec) {
+			mesh.Clear ();
+			if (section.getPosition ().Count >= 2) {
+				//this.ExtrudeLine ();
+				this.ExtrudeSpline ();
+			}
 		}
 		lastCount = path.getPosition ().Count;
+		lastCountSec = section.getPosition ().Count;
 	}
 
 	void ExtrudeLine() {
-		section.setCircle (1);
+		//section.setCircle (1);
 		int stacks = path.getPosition ().Count;
 		int slices = section.getPosition ().Count;
 		int[] triangles = new int[3 * 2 * slices * (stacks - 1) * 2];
@@ -42,7 +57,7 @@ public class Extrusion : MonoBehaviour {
 				Vector3 pathPosition = new Vector3 (p1.x, p1.y, p1.z);
 
 
-				Vector3 dir = this.tangentLine(y);
+				Vector3 dir = path.tangentLine(y);
 
 				Quaternion rotation = Quaternion.FromToRotation (Vector3.forward, dir);
 				p = rotation * p;
@@ -92,21 +107,67 @@ public class Extrusion : MonoBehaviour {
 		mesh.triangles = triangles;
 	}
 
-	Vector3 tangentLine(int i) {
-		Vector3 tangent = new Vector3();
-		Vector3 p = path.getPosition () [i];
+	void ExtrudeSpline() {
+		int stacks = 100;
+		int slices = section.getPosition ().Count;
+		int[] triangles = new int[3 * 2 * slices * (stacks - 1) * 2];
 
-		if (i == 0) {
-			tangent = path.getPosition () [i + 1] - p;
-		} else if (i == path.getPosition ().Count - 1) {
-			tangent = p - path.getPosition () [i - 1];
-		} else {
-			Vector3 l = path.getPosition () [i - 1];
-			Vector3 r = path.getPosition () [i + 1];
-			tangent = r - l;
+		position = new Vector3[stacks * slices];
+
+		for (int y = 0; y < stacks; y++) {
+			for (int x = 0; x < slices; x++) {
+				Vector3 p = section.getPosition () [x];
+				Vector3 p1 = path.PointSpline ((y * 1.0f) / (stacks * 1.0f));
+				Vector3 pathPosition = new Vector3 (p1.x, p1.y, p1.z);
+
+				Vector3 dir = path.TangentSpline((y * 1.0f) / (stacks * 1.0f));
+
+				Quaternion rotation = Quaternion.FromToRotation (Vector3.forward, dir);
+				p = rotation * p;
+
+				Vector3 correctPoint = new Vector3 (p.x, p.y, p.z);
+
+				position [x + y * slices] = correctPoint + pathPosition;
+			}
 		}
 
-		return tangent;
+		int i = 0;
+		for (int y = 0; y < stacks - 1; y++) {
+			for (int x = 0; x < slices - 1; x++) {
+				int bottomLeft = x + y * slices;
+				int bottomRight = (x + 1) + y * slices;
+				int topLeft = bottomLeft + slices;
+				int topRight = bottomRight + slices;
+
+				triangles [i] = topLeft;
+				triangles [i + 1] = bottomLeft;
+				triangles [i + 2] = bottomRight;
+
+				i += 3;
+
+				triangles [i] = topLeft;
+				triangles [i + 1] = bottomRight;
+				triangles [i + 2] = bottomLeft;
+
+				i += 3;
+
+				triangles [i] = bottomRight;
+				triangles [i + 1] = topRight;
+				triangles [i + 2] = topLeft;
+
+				i += 3;
+
+				triangles [i] = bottomRight;
+				triangles [i + 1] = topLeft;
+				triangles [i + 2] = topRight;
+
+				i += 3;
+			}
+		}
+
+		mesh.Clear ();
+		mesh.vertices = position;
+		mesh.triangles = triangles;
 	}
 
 	void OnDrawGizmos() {

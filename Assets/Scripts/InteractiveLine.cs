@@ -16,7 +16,7 @@ public class InteractiveLine : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (gameObject.name == "Path") {
+		if (gameObject.GetComponent<LineRenderer>().enabled) {
 			if (Input.GetKeyDown (KeyCode.X)) {
 				position = new List<Vector3> ();
 			}
@@ -32,7 +32,6 @@ public class InteractiveLine : MonoBehaviour {
 
 		for (int i = 0; i < 101; i++) {
 			courbe [i] = PointSpline ((i * 1.0f) / 100.0f);
-			Debug.Log (courbe [i]);
 		}
 
 		LineRenderer line = this.gameObject.GetComponent<LineRenderer> ();
@@ -42,7 +41,7 @@ public class InteractiveLine : MonoBehaviour {
 		line.SetPositions(courbe);
 	}
 
-	Vector3 PointSpline(float tNormalized) {
+	public Vector3 PointSpline(float tNormalized) {
 		int count = position.Count;
 		if (tNormalized == 1) {
 			return position [count - 1];
@@ -62,7 +61,27 @@ public class InteractiveLine : MonoBehaviour {
 		}
 	}
 
-	Vector3 tangentLine(int i) {
+	public Vector3 TangentSpline(float tNormalized) {
+		int count = position.Count;
+		if (tNormalized == 1) {
+			return position [count - 1];
+		} else {
+			int i = (int)((count - 1) * tNormalized);
+
+			Vector3 p0 = position [i];
+			Vector3 p1 = position [i + 1];
+			Vector3 t0 = tangentLine (i);
+			Vector3 t1 = tangentLine (i + 1);
+
+			float t = (tNormalized - (i / (count - 1.0f))) * (count - 1.0f);
+
+			return 3 * (t * t) * (2.0f * p0 - 2.0f * p1 + t0 + t1) + 
+				2 * t * (-3.0f * p0 + 3.0f * p1 - 2.0f * t0 - t1) + 
+				t0;
+		}
+	}
+
+	public Vector3 tangentLine(int i) {
 		Vector3 tangent = new Vector3();
 		Vector3 p = position [i];
 
@@ -84,6 +103,13 @@ public class InteractiveLine : MonoBehaviour {
 		position.Add (new Vector3 (-2,-2,0));
 		position.Add (new Vector3 (0,2,0));
 		position.Add (new Vector3 (2,-1,0));
+	}
+
+	public Vector3 Normale(int i) {
+		if (i == 0 || i == position.Count - 1) {
+			return position [i].normalized;
+		}
+		return ((Normale(i - 1) + Normale(i + 1)) / 2).normalized;
 	}
 
 	public void setCircle(float r) {
