@@ -28,17 +28,20 @@ public class InteractiveLine : MonoBehaviour {
 			}
 		}
 
-		Vector3[] courbe = new Vector3[101];
+		int size = 201;
+		Vector3[] courbe = new Vector3[size];
 
-		for (int i = 0; i < 101; i++) {
-			courbe [i] = PointSpline ((i * 1.0f) / 100.0f);
+		if (position.Count >= 2) {
+			for (int i = 0; i < size; i++) {
+				courbe [i] = PointSpline ((i * 1.0f) / (size - 1.0f));
+			}
 		}
 
 		LineRenderer line = this.gameObject.GetComponent<LineRenderer> ();
 		//line.numPositions = position.Count;
 		//line.SetPositions (position.ToArray ());
-		line.numPositions = 101;
-		line.SetPositions(courbe);
+		line.positionCount = size;
+		line.SetPositions (courbe);
 	}
 
 	public Vector3 PointSpline(float tNormalized) {
@@ -46,14 +49,14 @@ public class InteractiveLine : MonoBehaviour {
 		if (tNormalized == 1) {
 			return position [count - 1];
 		} else {
-			int i = (int)((count - 1) * tNormalized);
+			int i = Mathf.FloorToInt((count - 1) * tNormalized);
 
 			Vector3 p0 = position [i];
 			Vector3 p1 = position [i + 1];
 			Vector3 t0 = tangentLine (i);
 			Vector3 t1 = tangentLine (i + 1);
 
-			float t = (tNormalized - (i / (count - 1.0f))) * (count - 1.0f);
+			float t = (tNormalized - ((float) i / (count - 1.0f))) * (count - 1.0f);
 
 			return (t * t * t) * (2.0f * p0 - 2.0f * p1 + t0 + t1) + 
 				(t * t) * (-3.0f * p0 + 3.0f * p1 - 2.0f * t0 - t1) + 
@@ -66,8 +69,7 @@ public class InteractiveLine : MonoBehaviour {
 		if (tNormalized == 1) {
 			return position [count - 1];
 		} else {
-			int i = (int)((count - 1) * tNormalized);
-
+			int i = Mathf.FloorToInt((count - 1) * tNormalized);
 			Vector3 p0 = position [i];
 			Vector3 p1 = position [i + 1];
 			Vector3 t0 = tangentLine (i);

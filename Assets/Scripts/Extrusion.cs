@@ -15,7 +15,7 @@ public class Extrusion : MonoBehaviour {
 		GetComponent<MeshFilter> ().mesh = mesh = new Mesh ();
 		mesh.name = "Extrusion";
 		//path.setSegment ();
-		path.setCircle(2);
+		path.setCircle(3);
 		section.setCircle (1);
 		this.ExtrudeLine ();
 	}
@@ -54,17 +54,14 @@ public class Extrusion : MonoBehaviour {
 			for (int x = 0; x < slices; x++) {
 				Vector3 p = section.getPosition () [x];
 				Vector3 p1 = path.getPosition () [y];
-				Vector3 pathPosition = new Vector3 (p1.x, p1.y, p1.z);
-
 
 				Vector3 dir = path.tangentLine(y);
 
-				Quaternion rotation = Quaternion.FromToRotation (Vector3.forward, dir);
-				p = rotation * p;
+				Quaternion rotation = Quaternion.FromToRotation (Vector3.up, dir);
 
-				Vector3 correctPoint = new Vector3 (p.x, p.y, p.z);
+				Vector3 correctPoint = rotation * new Vector3 (p.x, 0, p.y);
 
-				position [x + y * slices] = correctPoint + pathPosition;
+				position [x + y * slices] = correctPoint + p1;
 			}
 		}
 
@@ -108,7 +105,7 @@ public class Extrusion : MonoBehaviour {
 	}
 
 	void ExtrudeSpline() {
-		int stacks = 100;
+		int stacks = 201;
 		int slices = section.getPosition ().Count;
 		int[] triangles = new int[3 * 2 * slices * (stacks - 1) * 2];
 
@@ -118,16 +115,13 @@ public class Extrusion : MonoBehaviour {
 			for (int x = 0; x < slices; x++) {
 				Vector3 p = section.getPosition () [x];
 				Vector3 p1 = path.PointSpline ((y * 1.0f) / (stacks * 1.0f));
-				Vector3 pathPosition = new Vector3 (p1.x, p1.y, p1.z);
 
 				Vector3 dir = path.TangentSpline((y * 1.0f) / (stacks * 1.0f));
+				Quaternion rotation = Quaternion.FromToRotation (Vector3.up, dir);
 
-				Quaternion rotation = Quaternion.FromToRotation (Vector3.forward, dir);
-				p = rotation * p;
+				Vector3 correctPoint = rotation * new Vector3 (p.x, 0, p.y);
 
-				Vector3 correctPoint = new Vector3 (p.x, p.y, p.z);
-
-				position [x + y * slices] = correctPoint + pathPosition;
+				position [x + y * slices] = correctPoint + p1;
 			}
 		}
 
