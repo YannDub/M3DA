@@ -28,7 +28,6 @@ public class Extrusion : MonoBehaviour {
 				//this.ExtrudeLine ();
 				this.ExtrudeSpline();
 			}
-			Debug.Log ("Test");
 		}
 
 		if (section.getPosition ().Count != lastCountSec) {
