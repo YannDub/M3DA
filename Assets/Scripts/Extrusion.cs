@@ -7,7 +7,7 @@ public class Extrusion : MonoBehaviour {
 	private Mesh mesh;
 	public InteractiveLine path, section;
 
-	private Vector3[] position;
+	private Vector3[] position, normales;
 	private int lastCount, lastCountSec;
 
 	// Use this for initialization
@@ -110,6 +110,7 @@ public class Extrusion : MonoBehaviour {
 		int[] triangles = new int[3 * 2 * slices * (stacks - 1) * 2];
 
 		position = new Vector3[stacks * slices];
+		normales = new Vector3[stacks * slices];
 
 		for (int y = 0; y < stacks; y++) {
 			for (int x = 0; x < slices; x++) {
@@ -120,8 +121,10 @@ public class Extrusion : MonoBehaviour {
 				Quaternion rotation = Quaternion.FromToRotation (Vector3.up, dir);
 
 				Vector3 correctPoint = rotation * new Vector3 (p.x, 0, p.y);
+				Vector3 normal = section.Normale (x);
 
 				position [x + y * slices] = correctPoint + p1;
+				normales [x + y * slices] = normal;
 			}
 		}
 
@@ -162,6 +165,7 @@ public class Extrusion : MonoBehaviour {
 		mesh.Clear ();
 		mesh.vertices = position;
 		mesh.triangles = triangles;
+		mesh.normals = normales;
 	}
 
 	void OnDrawGizmos() {

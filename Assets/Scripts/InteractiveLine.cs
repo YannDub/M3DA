@@ -38,9 +38,9 @@ public class InteractiveLine : MonoBehaviour {
 		}
 
 		LineRenderer line = this.gameObject.GetComponent<LineRenderer> ();
-		//line.numPositions = position.Count;
+		line.numPositions = size;
 		//line.SetPositions (position.ToArray ());
-		line.positionCount = size;
+		//line.positionCount = size;
 		line.SetPositions (courbe);
 	}
 
@@ -109,9 +109,11 @@ public class InteractiveLine : MonoBehaviour {
 
 	public Vector3 Normale(int i) {
 		if (i == 0 || i == position.Count - 1) {
-			return position [i].normalized;
+			return position [i];
 		}
-		return ((Normale(i - 1) + Normale(i + 1)) / 2).normalized;
+		Vector3 l = position [i + 1] - position [i];
+
+		return new Vector3(-l.y, l.x, 0);
 	}
 
 	public void setCircle(float r) {
